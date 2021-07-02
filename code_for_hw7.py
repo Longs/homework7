@@ -73,7 +73,8 @@ class SoftMax(Module):  # Output activation
         return dLdZ
 
     def class_fun(self, Ypred):  # Return class indices
-        return np.argmax(np.array([[12,13],[17,4]]),axis=0)  # Your code: (1, b)
+        #return np.argmax(np.array([[12,13],[17,4]]),axis=0)  # Your code: (1, b)
+        return np.argmax(Ypred,axis=0)  # Your code: (1, b)
 
 
 # Loss modules
@@ -104,8 +105,17 @@ class Sequential:
 
     def sgd(self, X, Y, iters=100, lrate=0.005):  # Train
         D, N = X.shape
-        for it in range(iters):
-            pass  # Your code
+        for iteration in range(iters):
+            #pass  # Your code
+            #X = (self.forward(np.transpose(X)))
+            X = (self.forward(X))
+            # final output module returns the delta used for the remainder
+            cur_loss = self.loss.forward(X,Y)
+            delta = self.loss.backward()
+            self.print_accuracy(iteration, X, Y, cur_loss,10000)
+            self.backward(delta)
+            self.sgd_step(lrate)
+        return
 
     def forward(self, Xt):  # Compute Ypred
         for m in self.modules: Xt = m.forward(Xt)
@@ -349,7 +359,7 @@ def nn_pred_test():
     return nn.modules[-1].class_fun(Ypred).tolist(), [nn.loss.forward(Ypred, Y)]
 
 
-
+print("\ntanh\n")
 print(nn_tanh_test())
 
 # Expected output
@@ -363,7 +373,7 @@ print(nn_tanh_test())
     [-0.0037249480614718, 0.0037249480614718]]]
 '''
 
-
+print("\nrelu\n")
 print(nn_relu_test())
 
 # Expected output
@@ -376,7 +386,7 @@ print(nn_relu_test())
     [0.08364438851530624, 0.8391444067898763],
     [-0.004252310922204504, 0.004252310922204505]]]
 '''
-
+print("\n nn_pred \n")
 
 print(nn_pred_test())
 
