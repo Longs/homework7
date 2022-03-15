@@ -51,8 +51,9 @@ class Tanh(Module):  # Layer activation
         return self.A
 
     def backward(self, dLdA):  # Uses stored self.A
-        return dLdA/np.cosh(np.arctanh(self.A))**2
-        
+        #return dLdA/np.cosh(np.arctanh(self.A))**2
+        #return dLdA/(1-(self.A**2)) ### NO is multiply not divide
+        return dLdA*(1-(self.A**2))
 
 
 class ReLU(Module):  # Layer activation
@@ -104,15 +105,23 @@ class Sequential:
         self.loss = loss
 
     def sgd(self, X, Y, iters=100, lrate=0.005):  # Train
+        
         D, N = X.shape
         for iteration in range(iters):
             #pass  # Your code
             #X = (self.forward(np.transpose(X)))
-            X = (self.forward(X))
+
+            #### STOCHASTIC gradient descent!!!!
+            i = np.random.randint(N)
+            Xt = X[:, i:i+1]
+            Yt = Y[:, i:i+1]
+
+
+            Ypred = (self.forward(Xt))
             # final output module returns the delta used for the remainder
-            cur_loss = self.loss.forward(X,Y)
+            cur_loss = self.loss.forward(Ypred,Yt)
             delta = self.loss.backward()
-            self.print_accuracy(iteration, X, Y, cur_loss,10000)
+            self.print_accuracy(iteration, Xt, Yt, cur_loss,10000)
             self.backward(delta)
             self.sgd_step(lrate)
         return
